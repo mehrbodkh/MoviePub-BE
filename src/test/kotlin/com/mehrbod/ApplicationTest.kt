@@ -1,6 +1,6 @@
 package com.mehrbod
 
-import com.mehrbod.plugins.*
+import com.mehrbod.controllers.configureRouting
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*

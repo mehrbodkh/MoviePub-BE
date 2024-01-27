@@ -1,5 +1,7 @@
 package com.mehrbod
 
+import com.mehrbod.controllers.configureRouting
+import com.mehrbod.di.configureKoin
 import com.mehrbod.plugins.*
 import io.ktor.server.application.*
 
@@ -9,8 +11,9 @@ fun main(args: Array<String>) {
 }
 
 fun Application.module() {
-    configureHTTP()
     configureSerialization()
+    configureKoin()
+    configureHTTP()
     configureDatabases()
     configureMonitoring()
     configureSecurity()
