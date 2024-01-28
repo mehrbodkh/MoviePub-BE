@@ -1,6 +1,6 @@
-package com.mehrbod.data.datasource
+package com.mehrbod.data.datasource.remote
 
-import com.mehrbod.data.datasource.model.MoviesDTO
+import com.mehrbod.data.datasource.remote.model.MoviesDTO
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.request.*

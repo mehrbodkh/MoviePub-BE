@@ -1,4 +1,4 @@
-package com.mehrbod.data.datasource.model
+package com.mehrbod.data.datasource.remote.model
 
 import kotlinx.serialization.Serializable
 

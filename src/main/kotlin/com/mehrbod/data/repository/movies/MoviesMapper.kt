@@ -1,7 +1,7 @@
 package com.mehrbod.data.repository.movies
 
-import com.mehrbod.data.datasource.model.MovieDTO
-import com.mehrbod.data.datasource.model.MoviesDTO
+import com.mehrbod.data.datasource.remote.model.MovieDTO
+import com.mehrbod.data.datasource.remote.model.MoviesDTO
 import com.mehrbod.data.repository.model.Movie
 import com.mehrbod.data.repository.model.Movies
 
