@@ -12,8 +12,8 @@ class MovieRepositoryImpl(
         val movies = localDataSource.fetchMovies(page)
         return Movies(
             page = page,
-            movies = movies,
-            totalPages = 457
+            movies = movies.first,
+            totalPages = movies.second
         )
     }
 }

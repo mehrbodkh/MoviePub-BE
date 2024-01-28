@@ -1,7 +1,6 @@
 package com.mehrbod.data.datasource.local
 
 import com.mehrbod.data.repository.model.Movie
-import io.ktor.util.logging.*
 import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
@@ -16,7 +15,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 class LocalMovieDataSource(
     database: Database
 ) {
-    object Movies : IntIdTable() {
+    object MoviesTable : IntIdTable() {
         val adult = bool("adult")
         val backdropPath = varchar("backdrop_path", 256).nullable()
         val genreIds = text("genre_ids")
@@ -33,36 +32,37 @@ class LocalMovieDataSource(
         val voteCount = integer("vote_count")
     }
 
-    class Movie(id: EntityID<Int>) : IntEntity(id) {
-        companion object : IntEntityClass<Movie>(Movies)
-        var adult by Movies.adult
-        var backdropPath by Movies.backdropPath
-        var genreIds by Movies.genreIds
-        var originalId by Movies.originalId
-        var originalLanguage by Movies.originalLanguage
-        var originalTitle by Movies.originalTitle
-        var overview by Movies.overview
-        var popularity by Movies.popularity
-        var posterPath by Movies.posterPath
-        var releaseDate by Movies.releaseDate
-        var title by Movies.title
-        var video by Movies.video
-        var voteAverage by Movies.voteAverage
-        var voteCount by Movies.voteCount
+    class MovieDao(id: EntityID<Int>) : IntEntity(id) {
+        companion object : IntEntityClass<MovieDao>(MoviesTable)
+
+        var adult by MoviesTable.adult
+        var backdropPath by MoviesTable.backdropPath
+        var genreIds by MoviesTable.genreIds
+        var originalId by MoviesTable.originalId
+        var originalLanguage by MoviesTable.originalLanguage
+        var originalTitle by MoviesTable.originalTitle
+        var overview by MoviesTable.overview
+        var popularity by MoviesTable.popularity
+        var posterPath by MoviesTable.posterPath
+        var releaseDate by MoviesTable.releaseDate
+        var title by MoviesTable.title
+        var video by MoviesTable.video
+        var voteAverage by MoviesTable.voteAverage
+        var voteCount by MoviesTable.voteCount
     }
 
     init {
         transaction(database) {
-            SchemaUtils.create(Movies)
+            SchemaUtils.create(MoviesTable)
         }
     }
 
     private suspend fun <T> dbQuery(block: suspend () -> T): T =
         newSuspendedTransaction(Dispatchers.IO) { block() }
 
-    suspend fun addMovie(movie: com.mehrbod.data.repository.model.Movie) = dbQuery {
-        if (Movie.find { Movies.originalId eq movie.id }.empty()) {
-            Movie.new {
+    suspend fun addMovie(movie: Movie) = dbQuery {
+        if (MovieDao.find { MoviesTable.originalId eq movie.id }.empty()) {
+            MovieDao.new {
                 this.adult = movie.adult
                 this.backdropPath = movie.backdropPath
                 this.genreIds = movie.genreIds.joinToString()
@@ -81,25 +81,26 @@ class LocalMovieDataSource(
         }
     }
 
-    suspend fun fetchMovies(page: Int): List<com.mehrbod.data.repository.model.Movie> = dbQuery {
-        Movie.all().limit(20, ((page - 1) * 20).toLong()).orderBy(Movies.voteAverage to SortOrder.DESC).toList().map {
-            com.mehrbod.data.repository.model.Movie(
-                it.adult,
-                it.backdropPath,
-                it.genreIds.split(", ").map { it.toInt() },
-                it.originalId,
-                it.originalLanguage,
-                it.originalTitle,
-                it.overview,
-                it.popularity,
-                it.posterPath,
-                it.releaseDate,
-                it.title,
-                it.video,
-                it.voteAverage,
-                it.voteCount
-            )
-        }
+    suspend fun fetchMovies(page: Int): Pair<List<Movie>, Int> = dbQuery {
+        MovieDao.all().limit(20, ((page - 1) * 20).toLong()).orderBy(MoviesTable.voteAverage to SortOrder.DESC).toList()
+            .map {
+                Movie(
+                    it.adult,
+                    it.backdropPath,
+                    it.genreIds.split(", ").map { it.toInt() },
+                    it.originalId,
+                    it.originalLanguage,
+                    it.originalTitle,
+                    it.overview,
+                    it.popularity,
+                    it.posterPath,
+                    it.releaseDate,
+                    it.title,
+                    it.video,
+                    it.voteAverage,
+                    it.voteCount
+                )
+            } to (MovieDao.count().toInt() / 20) + 1
     }
 
 }
