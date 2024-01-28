@@ -19,6 +19,9 @@ fun Application.configureRouting() {
                 val result = moviesService.getTopMovies(page.toInt())
                 call.respond(result)
             }
+            get("/movie/genres/list") {
+                call.respond(moviesService.getGenres())
+            }
         }
     }
 }

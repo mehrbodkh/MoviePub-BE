@@ -15,7 +15,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 class LocalMovieDataSource(
     database: Database
 ) {
-    object MoviesTable : IntIdTable() {
+    object MoviesTable : IntIdTable(name = "movies") {
         val adult = bool("adult")
         val backdropPath = varchar("backdrop_path", 256).nullable()
         val genreIds = text("genre_ids")
