@@ -1,5 +1,6 @@
 package com.mehrbod.di
 
+import com.mehrbod.data.datasource.local.LocalGenreDataSource
 import com.mehrbod.data.datasource.local.LocalMovieDataSource
 import com.mehrbod.data.datasource.remote.RemoteMovieDataSource
 import com.mehrbod.data.repository.movies.MovieRepository
@@ -42,6 +43,9 @@ val moviesModule = module {
     single<LocalMovieDataSource> {
         LocalMovieDataSource(get())
     }
+    single<LocalGenreDataSource> {
+        LocalGenreDataSource(get())
+    }
     single<String>(named("api_key")) {
         val config: ApplicationConfig by inject()
         config.property("tmdb.api_key").getString()
@@ -59,6 +63,6 @@ val moviesModule = module {
         }
     }
     single<RemoteMovieDataSource> { RemoteMovieDataSource(get(), get(named("api_key"))) }
-    single<MovieRepository> { MovieRepositoryImpl(get(), get()) }
+    single<MovieRepository> { MovieRepositoryImpl(get(), get(), get()) }
     single<MoviesService> { MoviesService(get()) }
 }

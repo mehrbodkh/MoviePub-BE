@@ -1,5 +1,6 @@
 package com.mehrbod.data.repository.movies
 
+import com.mehrbod.data.datasource.local.LocalGenreDataSource
 import com.mehrbod.data.datasource.local.LocalMovieDataSource
 import com.mehrbod.data.datasource.remote.RemoteMovieDataSource
 import com.mehrbod.data.repository.model.Movie
@@ -11,6 +12,7 @@ import kotlinx.coroutines.launch
 class MovieRepositoryImpl(
     private val remoteDataSource: RemoteMovieDataSource,
     private val localDataSource: LocalMovieDataSource,
+    private val localGenreDataSource: LocalGenreDataSource,
 ) : MovieRepository {
 
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
@@ -47,5 +49,19 @@ class MovieRepositoryImpl(
             movies = movies.first,
             totalPages = movies.second
         )
+    }
+
+    override suspend fun getGenres(): List<Pair<Int, String>> {
+        var result = localGenreDataSource.fetchGenres()
+
+        if (result.isEmpty()) {
+            remoteDataSource.getGenres().forEach {
+                localGenreDataSource.addGenre(it.first, it.second)
+            }
+        }
+
+        result = localGenreDataSource.fetchGenres()
+
+        return result
     }
 }
