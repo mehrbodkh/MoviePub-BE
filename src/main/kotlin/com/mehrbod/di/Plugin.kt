@@ -11,7 +11,8 @@ fun Application.configureKoin() {
             module {
                 single { environment.config }
             },
-            moviesModule
+            moviesModule,
+            usersModule,
         )
     }
 }
