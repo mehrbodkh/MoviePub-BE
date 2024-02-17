@@ -1,15 +1,15 @@
 package com.mehrbod.data.datasource.local
 
 import com.mehrbod.data.repository.model.Movie
+import io.ktor.util.logging.*
 import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IntIdTable
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.SchemaUtils
-import org.jetbrains.exposed.sql.SortOrder
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
+import org.jetbrains.exposed.sql.transactions.experimental.suspendedTransactionAsync
 import org.jetbrains.exposed.sql.transactions.transaction
 
 class LocalMovieDataSource(
@@ -60,8 +60,29 @@ class LocalMovieDataSource(
     private suspend fun <T> dbQuery(block: suspend () -> T): T =
         newSuspendedTransaction(Dispatchers.IO) { block() }
 
-    suspend fun addMovie(movie: Movie) = dbQuery {
+    suspend fun addMovie(movie: Movie) = suspendedTransactionAsync(context = Dispatchers.IO) {
         if (MovieDao.find { MoviesTable.originalId eq movie.id }.empty()) {
+            MovieDao.new {
+                this.adult = movie.adult
+                this.backdropPath = movie.backdropPath
+                this.genreIds = movie.genreIds.joinToString()
+                this.originalId = movie.id
+                this.originalLanguage = movie.originalLanguage
+                this.originalTitle = movie.originalTitle
+                this.overview = movie.overview
+                this.popularity = movie.popularity
+                this.posterPath = movie.posterPath
+                this.releaseDate = movie.releaseDate
+                this.title = movie.title
+                this.video = movie.video
+                this.voteAverage = movie.voteAverage
+                this.voteCount = movie.voteCount
+            }
+        }
+    }.await()
+
+    suspend fun addMovies(movies: List<Movie>) = dbQuery {
+        movies.map { movie ->
             MovieDao.new {
                 this.adult = movie.adult
                 this.backdropPath = movie.backdropPath
@@ -100,7 +121,7 @@ class LocalMovieDataSource(
                     it.voteAverage,
                     it.voteCount
                 )
-            } to (MovieDao.count().toInt() / 20) + 1
+            } to (MovieDao.count().toInt() / 20)
     }
 
 }

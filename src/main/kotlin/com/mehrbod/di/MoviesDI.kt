@@ -13,6 +13,7 @@ import io.ktor.client.plugins.logging.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.config.*
 import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.DatabaseConfig
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
@@ -34,7 +35,7 @@ val moviesModule = module {
 
                 maximumPoolSize = 3
                 isAutoCommit = false
-                transactionIsolation = "TRANSACTION_REPEATABLE_READ"
+                transactionIsolation = "TRANSACTION_READ_COMMITTED"
                 validate()
             }
         )

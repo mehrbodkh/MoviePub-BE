@@ -72,6 +72,10 @@ fun Application.configureRouting() {
                 get("/movie/genres/list-pro") {
                     call.respond(moviesService.getGenres())
                 }
+                get("/movie/load-all") {
+                    moviesService.loadAllTopMovies()
+                    call.respondText("Loaded")
+                }
             }
         }
     }

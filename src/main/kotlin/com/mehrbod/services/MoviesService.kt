@@ -8,4 +8,6 @@ class MoviesService(
 
     suspend fun getTopMovies(page: Int) = repository.getTopMovies(page)
     suspend fun getGenres() = repository.getGenres()
+
+    suspend fun loadAllTopMovies() = repository.loadAllTopMovies()
 }

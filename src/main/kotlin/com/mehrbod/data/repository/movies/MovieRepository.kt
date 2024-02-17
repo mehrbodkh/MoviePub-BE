@@ -6,4 +6,6 @@ interface MovieRepository {
     suspend fun getTopMovies(page: Int): Movies
 
     suspend fun getGenres(): List<Pair<Int, String>>
+
+    suspend fun loadAllTopMovies()
 }
